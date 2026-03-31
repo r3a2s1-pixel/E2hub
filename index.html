@@ -32,59 +32,25 @@
           boxShadow: {
             soft: "0 10px 30px rgba(0,0,0,0.20)",
             premium: "0 24px 70px rgba(0,0,0,0.35)"
-          },
-          fontFamily: {
-            sans: ["Inter", "sans-serif"]
           }
         }
       }
     };
   </script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
 
   <style>
-    body {
-      background-color: #0a0a0a;
-      color: #ffffff;
-      font-family: "Inter", sans-serif;
+    body { background-color: #0a0a0a; color: #ffffff; font-family: 'Inter', sans-serif; }
+    .fade-in { animation: fadeIn .3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .project-card {
+      background: linear-gradient(145deg, #151515 0%, #0d0d0d 100%);
+      border: 1px solid #262626;
+      transition: all 0.3s ease;
     }
-
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #0a0a0a; }
-    ::-webkit-scrollbar-thumb { background: #262626; border-radius: 999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
-
-    .fade-in {
-      animation: fadeIn .25s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .border-glow {
-      position: relative;
-    }
-
-    .border-glow::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      padding: 1px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
-      -webkit-mask:
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-    }
+    .project-card:hover { border-color: #e50914; transform: translateY(-4px); }
   </style>
 </head>
 <body>
@@ -93,47 +59,16 @@
   <script type="text/babel">
     const { useEffect, useMemo, useState } = React;
 
-    const SUPABASE_URL = "YOUR_SUPABASE_URL";
-    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+    // Supabase Configuration
+    const SUPABASE_URL = "https://ytyuigcylsjasiwneytt.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_oiuImVgo9JUTfTe5A6MNWw_y3OjqE7q";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const SECTIONS = [
-      {
-        id: "quotation_received",
-        title: "Quotation Received",
-        icon: "fa-envelope-open-text",
-        desc: "Centralized repository for client requests, incoming quotations, and initial project documentation.",
-        action: "Open SharePoint",
-        badge: "Sales",
-        profileKey: "quotation_received"
-      },
-      {
-        id: "quotation_breakdown",
-        title: "Cost Analysis & Invoicing",
-        icon: "fa-file-invoice-dollar",
-        desc: "Detailed financial breakdowns, pricing sheets, and invoice management for commercial operations.",
-        action: "View Breakdown",
-        badge: "Finance",
-        profileKey: "quotation_breakdown"
-      },
-      {
-        id: "inventory",
-        title: "Inventory Control",
-        icon: "fa-boxes-stacked",
-        desc: "Real-time tracking of stock levels, materials, warehouse records, and logistics references.",
-        action: "Manage Stock",
-        badge: "Warehouse",
-        profileKey: "inventory"
-      },
-      {
-        id: "project_status",
-        title: "Project Milestones",
-        icon: "fa-bars-progress",
-        desc: "Consolidated view of project workspaces, timelines, active delivery stages, and internal status tracking.",
-        action: "Track Projects",
-        badge: "PMO",
-        profileKey: "project_status"
-      }
+      { id: "quotation_received", title: "Quotation Received", icon: "fa-envelope-open-text", profileKey: "quotation_received" },
+      { id: "quotation_breakdown", title: "Cost Analysis", icon: "fa-calculator", profileKey: "quotation_breakdown" },
+      { id: "inventory", title: "Inventory Control", icon: "fa-boxes-stacked", profileKey: "inventory" },
+      { id: "project_status", title: "Project Status", icon: "fa-bars-progress", profileKey: "project_status" }
     ];
 
     const DEFAULT_LINKS = {
@@ -143,87 +78,53 @@
       project_status: "#"
     };
 
-    const DEFAULT_PROJECTS = [
-      { id: "PRJ-01", name: "LULU ICAD Musaffah", status: "active" },
-      { id: "PRJ-02", name: "Y Tower Capital Centre (ADNEC)", status: "pending" },
-      { id: "PRJ-03", name: "Pixel Tower Reem", status: "active" },
-      { id: "PRJ-04", name: "LULU Hypermarket (MBZ)", status: "pending" },
-      { id: "PRJ-05", name: "Y Tower Al Nahyan - LuLu", status: "active" },
-      { id: "PRJ-06", name: "Al Falah Plaza Residential Complex", status: "pending" },
-      { id: "PRJ-07", name: "Y Tower Reem", status: "active" },
-      { id: "PRJ-08", name: "Forsan Central Mall", status: "pending" },
-      { id: "PRJ-09", name: "Village Mall", status: "active" },
-      { id: "PRJ-10", name: "Workers Village", status: "pending" }
+    const PROJECTS_LIST = [
+      "01-LULU ICAD Musaffah",
+      "02-Y Tower Capital centre (ADNEC)",
+      "03-Pixel Tower Reem",
+      "04- LULU Hypermarket(MBZ)",
+      "05-Y Tower - Al Nahyan - LuLu",
+      "06-AL Falah Plaza Residentaial complex",
+      "07- Y Tower Reem",
+      "08-Forsan central mall",
+      "09-Village mall",
+      "10- Workers village"
     ];
 
+    // Helpers
     function getInitials(name) {
-      return (name || "")
-        .split(" ")
-        .slice(0, 2)
-        .map(word => word[0]?.toUpperCase() || "")
-        .join("");
+      return (name || "").split(" ").slice(0, 2).map(word => word[0]?.toUpperCase() || "").join("");
     }
 
     function getSectionTitle(id) {
-      return SECTIONS.find(section => section.id === id)?.title || id;
+      return SECTIONS.find(s => s.id === id)?.title || id;
     }
 
     function normalizeLinks(rows) {
       const merged = { ...DEFAULT_LINKS };
-      (rows || []).forEach(row => {
-        merged[row.section_key] = row.url;
-      });
+      (rows || []).forEach(row => { merged[row.section_key] = row.url; });
       return merged;
     }
 
     function profileToPermissions(profile) {
       if (!profile) return [];
-      return SECTIONS
-        .filter(section => !!profile[section.profileKey])
-        .map(section => section.id);
+      return SECTIONS.filter(section => !!profile[section.profileKey]).map(section => section.id);
     }
 
-    function BrandLogo() {
-      return (
-        <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-2xl bg-brand flex items-center justify-center shadow-soft">
-            <span className="text-white font-black text-lg">E2</span>
-          </div>
-          <div>
-            <div className="text-xl font-extrabold tracking-tight">E2hub</div>
-            <div className="text-[11px] uppercase tracking-[0.22em] text-neutral-500 font-bold">
-              Internal Portal
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    function Notice({ notice }) {
+    // Components
+    const Notice = ({ notice }) => {
       if (!notice) return null;
-
-      const tone =
-        notice.type === "error"
-          ? "border-red-500/30 bg-red-950/40 text-red-200"
-          : "border-emerald-500/30 bg-emerald-950/30 text-emerald-200";
-
-      const icon =
-        notice.type === "error" ? "fa-circle-exclamation" : "fa-circle-check";
-
+      const tone = notice.type === "error" ? "border-red-500/30 bg-red-950/40 text-red-200" : "border-emerald-500/30 bg-emerald-950/30 text-emerald-200";
+      const icon = notice.type === "error" ? "fa-circle-exclamation" : "fa-circle-check";
       return (
-        <div className={`rounded-2xl border px-4 py-3 text-sm ${tone}`}>
-          <i className={`fa-solid ${icon} mr-2`}></i>
-          {notice.text}
+        <div className={`rounded-2xl border px-4 py-3 text-sm mb-6 ${tone}`}>
+          <i className={`fa-solid ${icon} mr-2`}></i>{notice.text}
         </div>
       );
-    }
+    };
 
-    function StatCard({ title, value, icon, accent = "brand" }) {
-      const accentClass =
-        accent === "brand"
-          ? "text-brand bg-brand/10 border-brand/20"
-          : "text-neutral-200 bg-dark-soft border-dark-border";
-
+    const StatCard = ({ title, value, icon, accent = "brand" }) => {
+      const accentClass = accent === "brand" ? "text-brand bg-brand/10 border-brand/20" : "text-neutral-200 bg-dark-soft border-dark-border";
       return (
         <div className="rounded-3xl border border-dark-border bg-dark-card p-5 shadow-soft">
           <div className="flex items-start justify-between gap-4">
@@ -231,856 +132,277 @@
               <p className="text-sm text-neutral-500">{title}</p>
               <p className="mt-2 text-2xl font-bold tracking-tight">{value}</p>
             </div>
-            <div className={`h-11 w-11 rounded-2xl border flex items-center justify-center ${accentClass}`}>
-              <i className={`fa-solid ${icon}`}></i>
-            </div>
+            <div className={`h-11 w-11 rounded-2xl border flex items-center justify-center ${accentClass}`}><i className={`fa-solid ${icon}`}></i></div>
           </div>
         </div>
       );
-    }
+    };
 
-    function LoadingScreen({ label = "Loading portal..." }) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-dark-bg px-4">
-          <div className="rounded-[32px] border border-dark-border bg-dark-panel p-10 shadow-premium text-center">
-            <div className="mx-auto h-14 w-14 rounded-2xl border border-dark-border bg-dark-card flex items-center justify-center text-brand text-xl">
-              <i className="fa-solid fa-spinner fa-spin"></i>
-            </div>
-            <div className="mt-5 text-lg font-bold">{label}</div>
-            <div className="mt-2 text-sm text-neutral-500">Please wait a moment.</div>
+    const LoadingScreen = () => (
+      <div className="min-h-screen flex items-center justify-center bg-dark-bg px-4">
+        <div className="rounded-[32px] border border-dark-border bg-dark-panel p-10 shadow-premium text-center">
+          <div className="mx-auto h-14 w-14 rounded-2xl border border-dark-border bg-dark-card flex items-center justify-center text-brand text-xl">
+            <i className="fa-solid fa-spinner fa-spin"></i>
           </div>
+          <div className="mt-5 text-lg font-bold">Authenticating...</div>
         </div>
-      );
-    }
+      </div>
+    );
 
-    function Login({ onLogin, error }) {
+    const Login = ({ onLogin, error }) => {
       const [email, setEmail] = useState("");
       const [password, setPassword] = useState("");
-      const [showPassword, setShowPassword] = useState(false);
       const [submitting, setSubmitting] = useState(false);
 
       const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
-        try {
-          await onLogin(email, password);
-        } finally {
-          setSubmitting(false);
-        }
+        try { await onLogin(email, password); } 
+        finally { setSubmitting(false); }
       };
 
       return (
-        <div className="min-h-screen relative overflow-hidden bg-dark-bg">
-          <div
-            className="absolute inset-0 opacity-80"
-            style={{
-              background:
-                "radial-gradient(circle at top left, rgba(229,9,20,0.18), transparent 28%), radial-gradient(circle at bottom right, rgba(229,9,20,0.10), transparent 32%)"
-            }}
-          ></div>
-
-          <div className="relative min-h-screen flex items-center justify-center px-4 py-10">
-            <div className="w-full max-w-6xl grid grid-cols-1 overflow-hidden rounded-[32px] border border-white/5 bg-dark-panel shadow-premium border-glow lg:grid-cols-[1.1fr_0.9fr]">
-              <div className="hidden lg:flex flex-col justify-between p-10 xl:p-12 border-r border-dark-border bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0))]">
-                <div>
-                  <BrandLogo />
-                </div>
-
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-red-200">
-                    <i className="fa-solid fa-shield-halved"></i>
-                    Secure Enterprise Access
-                  </div>
-
-                  <h1 className="mt-6 text-4xl xl:text-5xl font-black leading-tight tracking-tight">
-                    Premium internal workspace for E2hub operations.
-                  </h1>
-
-                  <p className="mt-5 max-w-xl text-base leading-7 text-neutral-400">
-                    Manage quotation folders, finance files, inventory references, and project workspaces
-                    from one centralized portal with role-based access control.
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-6 sm:p-8 lg:p-10 xl:p-12 flex items-center">
-                <div className="w-full max-w-md mx-auto">
-                  <div className="lg:hidden mb-8 flex justify-center">
-                    <BrandLogo />
-                  </div>
-
-                  <div className="mb-8 text-center lg:text-left">
-                    <h2 className="text-3xl font-black tracking-tight">Sign in</h2>
-                    <p className="mt-2 text-neutral-400">
-                      Use your Supabase auth email and password.
-                    </p>
-                  </div>
-
-                  {error && (
-                    <div className="mb-5 rounded-2xl border border-red-500/30 bg-red-950/40 px-4 py-3 text-sm text-red-200">
-                      <i className="fa-solid fa-circle-exclamation mr-2"></i>
-                      {error}
-                    </div>
-                  )}
-
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-neutral-300">Email</label>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter email"
-                        className="w-full rounded-2xl border border-dark-border bg-dark-bg px-4 py-3.5 text-white outline-none transition focus:border-brand"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-neutral-300">Password</label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="Enter password"
-                          className="w-full rounded-2xl border border-dark-border bg-dark-bg px-4 py-3.5 pr-12 text-white outline-none transition focus:border-brand"
-                          required
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white transition"
-                        >
-                          <i className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
-                        </button>
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="w-full rounded-2xl bg-brand hover:bg-brand-hover disabled:opacity-60 px-4 py-3.5 font-bold text-white transition shadow-soft"
-                    >
-                      {submitting ? "Signing in..." : "Sign In"}
-                    </button>
-                  </form>
-
-                  <div className="mt-6 rounded-2xl border border-dark-border bg-dark-bg px-4 py-4 text-center">
-                    <p className="text-xs uppercase tracking-[0.2em] text-neutral-500 font-bold">Important</p>
-                    <p className="mt-2 text-sm text-neutral-300">
-                      Login users must already exist in <span className="font-semibold text-white">Supabase Authentication</span>.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <div className="min-h-screen flex items-center justify-center p-4 fade-in bg-dark-bg">
+          <div className="w-full max-w-sm bg-dark-panel border border-dark-border p-10 rounded-[40px] shadow-premium text-center">
+            <div className="bg-brand text-white font-black w-16 h-16 flex items-center justify-center text-3xl rounded-2xl mx-auto mb-8 shadow-2xl">E2</div>
+            <h2 className="text-2xl font-black mb-8 tracking-tight">E2hub Portal</h2>
+            {error && <p className="text-brand text-xs font-bold mb-6 bg-brand/10 p-3 rounded-xl border border-brand/20">{error}</p>}
+            
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input type="email" placeholder="Supabase Email" className="w-full bg-dark-bg border border-dark-border p-4 rounded-2xl outline-none focus:border-brand transition" onChange={e => setEmail(e.target.value)} required />
+              <input type="password" placeholder="Password" className="w-full bg-dark-bg border border-dark-border p-4 rounded-2xl outline-none focus:border-brand transition" onChange={e => setPassword(e.target.value)} required />
+              <button type="submit" disabled={submitting} className="w-full bg-brand p-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-brand-hover disabled:opacity-60 transition shadow-xl mt-4">
+                {submitting ? "Signing In..." : "Sign In"}
+              </button>
+            </form>
           </div>
         </div>
       );
-    }
+    };
 
-    function TopNav({ currentUser, view, setView, onLogout }) {
-      return (
-        <nav className="sticky top-0 z-30 border-b border-dark-border bg-dark-panel/95 backdrop-blur">
-          <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-4 px-4 py-4 md:px-8">
-            <div className="flex items-center gap-6 md:gap-10">
-              <button onClick={() => setView("dashboard")} className="text-left">
-                <BrandLogo />
-              </button>
-
-              <div className="hidden md:flex items-center rounded-2xl border border-dark-border bg-dark-bg p-1">
-                <button
-                  onClick={() => setView("dashboard")}
-                  className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
-                    view === "dashboard"
-                      ? "bg-dark-card text-white shadow-soft"
-                      : "text-neutral-500 hover:text-white"
-                  }`}
-                >
-                  Overview
-                </button>
-
-                {currentUser.can_manage_users && (
-                  <button
-                    onClick={() => setView("admin")}
-                    className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
-                      view === "admin"
-                        ? "bg-dark-card text-brand shadow-soft"
-                        : "text-neutral-500 hover:text-white"
-                    }`}
-                  >
-                    Admin Panel
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 md:gap-5">
-              <div className="hidden sm:block text-right">
-                <p className="text-sm font-semibold text-white">{currentUser.full_name || currentUser.email}</p>
-                <p className="text-[11px] uppercase tracking-[0.22em] text-brand font-bold">{currentUser.role} Access</p>
-              </div>
-
-              <div className="h-11 w-11 rounded-full border border-dark-border bg-dark-bg flex items-center justify-center text-neutral-400">
-                <span className="text-sm font-bold">{getInitials(currentUser.full_name || currentUser.email || "U")}</span>
-              </div>
-
-              <button
-                onClick={onLogout}
-                className="inline-flex items-center gap-2 rounded-2xl border border-dark-border bg-dark-bg px-4 py-2.5 text-sm font-medium text-neutral-300 transition hover:border-brand hover:text-white"
-              >
-                <i className="fa-solid fa-right-from-bracket"></i>
-                <span className="hidden sm:inline">Sign Out</span>
-              </button>
+    const TopNav = ({ currentUser, setView, onLogout }) => (
+      <nav className="border-b border-dark-border bg-dark-panel p-5 sticky top-0 z-50">
+        <div className="max-w-[1600px] mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-4 cursor-pointer" onClick={() => setView('dashboard')}>
+            <div className="bg-brand text-white font-black px-3 py-1 rounded-lg text-xl tracking-tighter">E2</div>
+            <div className="hidden sm:block">
+              <p className="font-black text-lg leading-none tracking-tight">E2HUB</p>
+              <p className="text-[10px] text-neutral-500 font-bold tracking-[0.2em] uppercase">Internal Portal</p>
             </div>
           </div>
-
-          <div className="px-4 pb-4 md:hidden">
-            <div className="flex rounded-2xl border border-dark-border bg-dark-bg p-1">
-              <button
-                onClick={() => setView("dashboard")}
-                className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
-                  view === "dashboard" ? "bg-dark-card text-white" : "text-neutral-500"
-                }`}
-              >
-                Overview
-              </button>
-
-              {currentUser.can_manage_users && (
-                <button
-                  onClick={() => setView("admin")}
-                  className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
-                    view === "admin" ? "bg-dark-card text-brand" : "text-neutral-500"
-                  }`}
-                >
-                  Admin
-                </button>
-              )}
-            </div>
-          </div>
-        </nav>
-      );
-    }
-
-    function SectionCard({ section, link, onOpenProjects }) {
-      const isProjectWorkspace = section.id === "project_status";
-
-      return (
-        <div className="group rounded-[28px] border border-dark-border bg-dark-card p-6 shadow-soft transition duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-premium">
-          <div className="flex items-start justify-between gap-4">
-            <div className="h-14 w-14 rounded-2xl border border-dark-border bg-dark-bg flex items-center justify-center text-xl text-neutral-300 group-hover:text-brand transition">
-              <i className={`fa-solid ${section.icon}`}></i>
-            </div>
-
-            <div className="rounded-full border border-dark-border bg-dark-bg px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-neutral-500 font-bold">
-              {section.badge}
-            </div>
-          </div>
-
-          <h3 className="mt-6 text-xl font-bold tracking-tight">{section.title}</h3>
-          <p className="mt-3 text-sm leading-6 text-neutral-500 min-h-[72px]">{section.desc}</p>
-
-          <div className="mt-7">
-            {isProjectWorkspace ? (
-              <button
-                onClick={onOpenProjects}
-                className="inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-dark-border bg-dark-bg px-4 py-3 text-sm font-semibold text-white transition hover:border-brand hover:text-white"
-              >
-                <i className="fa-solid fa-arrow-up-right-from-square text-neutral-500 group-hover:text-brand transition"></i>
-                {section.action}
-              </button>
-            ) : (
-              <a
-                href={link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-dark-border bg-dark-bg px-4 py-3 text-sm font-semibold text-white transition hover:border-brand hover:text-white"
-              >
-                <i className="fa-brands fa-microsoft text-neutral-500 group-hover:text-brand transition"></i>
-                {section.action}
-              </a>
+          <div className="flex items-center gap-4">
+            {currentUser?.can_manage_users && (
+              <button onClick={() => setView('admin')} className="text-xs bg-dark-bg border border-dark-border px-5 py-2.5 rounded-xl hover:border-brand transition font-bold text-neutral-300">Admin Panel</button>
             )}
+            <button onClick={onLogout} className="text-xs bg-brand text-white border border-brand px-5 py-2.5 rounded-xl hover:bg-brand-hover transition font-bold">Sign Out</button>
           </div>
         </div>
-      );
-    }
+      </nav>
+    );
 
-    function ProjectsWorkspace({ projects, onBack, masterLink }) {
-      const [projectRows, setProjectRows] = useState(projects);
+    const ProjectView = ({ onBack }) => (
+      <div className="fade-in py-6">
+        <button onClick={onBack} className="mb-6 flex items-center gap-2 text-sm font-bold text-neutral-500 hover:text-white transition">
+          <i className="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </button>
+        <h2 className="text-3xl font-black mb-8 tracking-tight">Project Workspaces</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {PROJECTS_LIST.map((name, i) => (
+            <div key={i} className="project-card rounded-[32px] p-8 group">
+              <div className="flex justify-between items-start mb-6">
+                <div className="h-12 w-12 bg-dark-bg rounded-xl border border-dark-border flex items-center justify-center text-xl text-neutral-500 group-hover:text-brand transition">
+                  <i className="fa-solid fa-diagram-project"></i>
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest bg-brand/10 text-brand px-3 py-1 rounded-full border border-brand/20">PRJ-{i+1}</span>
+              </div>
+              <h3 className="text-lg font-bold mb-4">{name}</h3>
+              <div className="pt-6 border-t border-dark-border flex items-center justify-between">
+                <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-widest italic">Details Available Soon</span>
+                <i className="fa-solid fa-lock text-neutral-700 text-xs"></i>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
 
-      const handleStatusChange = (projectId, newStatus) => {
-        setProjectRows(prev =>
-          prev.map(project =>
-            project.id === projectId
-              ? { ...project, status: newStatus }
-              : project
-          )
-        );
+    const Dashboard = ({ user, links, onOpenProjects }) => {
+      const handleOpen = (id) => {
+        if (id === 'project_status') onOpenProjects();
+        else window.open(links[id], '_blank', 'noopener,noreferrer');
       };
 
-      const getStatusClasses = (status) =>
-        status === "active"
-          ? "border-emerald-500/20 bg-emerald-950/30 text-emerald-300"
-          : "border-amber-500/20 bg-amber-950/30 text-amber-300";
-
-      const getFooterStatus = (status) =>
-        status === "active" ? "On Track" : "Pending Review";
+      const allowedSections = SECTIONS.filter(s => user.permissions.includes(s.id));
 
       return (
-        <div className="space-y-8 fade-in">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <button
-                onClick={onBack}
-                className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-neutral-500 transition hover:text-white"
-              >
-                <i className="fa-solid fa-arrow-left"></i>
-                Back to Dashboard
-              </button>
-
-              <h2 className="text-3xl font-black tracking-tight">Project Workspaces</h2>
-              <p className="mt-2 text-neutral-500">
-                Active project directories, deployment references, and internal tracking workspaces.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              {masterLink && masterLink !== "#" && (
-                <a
-                  href={masterLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-2xl border border-dark-border bg-dark-card px-4 py-3 text-sm font-semibold text-neutral-300 transition hover:border-brand hover:text-white"
-                >
-                  <i className="fa-brands fa-microsoft text-neutral-500"></i>
-                  Open Master Folder
-                </a>
-              )}
-
-              <div className="rounded-2xl border border-dark-border bg-dark-card px-4 py-3 text-sm text-neutral-400">
-                <span className="text-neutral-500">Total Projects:</span>{" "}
-                <span className="font-bold text-white">{projectRows.length}</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 fade-in py-10">
+          {allowedSections.map(s => (
+            <div key={s.id} onClick={() => handleOpen(s.id)} className="bg-dark-card border border-dark-border p-8 rounded-[32px] hover:border-brand/40 transition-all group cursor-pointer">
+              <div className="h-14 w-14 bg-dark-bg rounded-2xl flex items-center justify-center text-2xl text-neutral-500 group-hover:text-brand transition mb-6">
+                <i className={`fa-solid ${s.icon}`}></i>
               </div>
+              <h3 className="text-lg font-bold mb-8">{s.title}</h3>
+              <div className="text-[10px] font-black uppercase tracking-widest text-neutral-500 group-hover:text-brand transition">Click to Access <i className="fa-solid fa-arrow-right ml-1"></i></div>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {projectRows.map((project) => (
-              <div
-                key={project.id}
-                className="group rounded-[28px] border border-dark-border bg-dark-card p-6 shadow-soft transition hover:border-brand/25"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="rounded-full border border-dark-border bg-dark-bg px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-neutral-500 font-bold">
-                    {project.id}
-                  </div>
-
-                  <div className="relative">
-                    <select
-                      value={project.status}
-                      onChange={(e) => handleStatusChange(project.id, e.target.value)}
-                      className={`appearance-none rounded-full border px-4 py-1.5 pr-8 text-[11px] font-bold uppercase tracking-[0.18em] outline-none transition ${getStatusClasses(project.status)}`}
-                    >
-                      <option value="active">Active</option>
-                      <option value="pending">Pending</option>
-                    </select>
-                    <i className="fa-solid fa-chevron-down pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-neutral-400"></i>
-                  </div>
-                </div>
-
-                <div className="mt-5 h-12 w-12 rounded-2xl border border-dark-border bg-dark-bg flex items-center justify-center text-neutral-300 group-hover:text-brand transition">
-                  <i className="fa-solid fa-diagram-project text-lg"></i>
-                </div>
-
-                <h3 className="mt-5 text-lg font-bold leading-7">{project.id} - {project.name}</h3>
-                <p className="mt-2 text-sm leading-6 text-neutral-500">
-                  Internal project workspace ready for status reviews, team coordination, and document references.
-                </p>
-
-                <div className="mt-6 border-t border-dark-border pt-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-xs uppercase tracking-[0.18em] text-neutral-600 font-bold">
-                      Internal Tracking
-                    </span>
-                    <span className="text-xs font-semibold text-neutral-400">
-                      {getFooterStatus(project.status)}
-                    </span>
-                  </div>
-
-                  <p className="mt-3 text-xs leading-5 text-neutral-500">
-                    Detailed information will be available soon.
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       );
-    }
+    };
 
-    function Dashboard({ user, links }) {
-      const [viewingProjects, setViewingProjects] = useState(false);
+    // --- ADMIN COMPONENTS ---
+    const PermissionPill = ({ active, label, onToggle }) => (
+      <button type="button" onClick={onToggle} className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition ${active ? "border-brand/25 bg-brand/10 text-white" : "border-dark-border bg-dark-bg text-neutral-400 hover:text-white"}`}>
+        <span className={`h-2.5 w-2.5 rounded-full ${active ? "bg-brand" : "bg-neutral-600"}`}></span>{label}
+      </button>
+    );
 
-      const userSections = useMemo(
-        () => SECTIONS.filter(section => user.permissions.includes(section.id)),
-        [user]
-      );
-
-      const linkedSections = Object.values(links).filter(link => link && link !== "#").length;
-
-      if (viewingProjects) {
-        return (
-          <ProjectsWorkspace
-            projects={DEFAULT_PROJECTS}
-            onBack={() => setViewingProjects(false)}
-            masterLink={links.project_status}
-          />
-        );
-      }
-
-      return (
-        <div className="space-y-8 fade-in">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-red-200">
-                <i className="fa-solid fa-lock"></i>
-                Secure Workspace
-              </div>
-              <h2 className="mt-4 text-3xl md:text-4xl font-black tracking-tight">
-                Welcome back, {user.full_name || user.email}
-              </h2>
-              <p className="mt-3 max-w-2xl text-neutral-500">
-                Access your assigned modules, folders, breakdown sheets, inventory references, and project workspaces from one dashboard.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-dark-border bg-dark-card px-5 py-4 shadow-soft">
-              <div className="text-sm text-neutral-500">Role</div>
-              <div className="mt-1 text-lg font-bold">{user.role}</div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-            <StatCard title="Assigned Modules" value={user.permissions.length} icon="fa-layer-group" accent="brand" />
-            <StatCard title="Configured Links" value={linkedSections} icon="fa-link" />
-            <StatCard title="Projects Tracked" value={DEFAULT_PROJECTS.length} icon="fa-diagram-project" />
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 2xl:grid-cols-4">
-            {userSections.map(section => (
-              <SectionCard
-                key={section.id}
-                section={section}
-                link={links[section.id]}
-                onOpenProjects={() => setViewingProjects(true)}
-              />
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    function PermissionPill({ active, label, onToggle }) {
-      return (
-        <button
-          type="button"
-          onClick={onToggle}
-          className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition ${
-            active
-              ? "border-brand/25 bg-brand/10 text-white"
-              : "border-dark-border bg-dark-bg text-neutral-400 hover:text-white"
-          }`}
-        >
-          <span className={`h-2.5 w-2.5 rounded-full ${active ? "bg-brand" : "bg-neutral-600"}`}></span>
-          {label}
-        </button>
-      );
-    }
-
-    function UsersTable({ users }) {
-      return (
-        <div className="rounded-[28px] border border-dark-border bg-dark-card p-6 shadow-soft">
-          <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
-              <h3 className="text-xl font-bold tracking-tight">User Directory</h3>
-              <p className="mt-2 text-sm text-neutral-500">
-                Profiles loaded from the Supabase <span className="font-semibold text-white">user_profiles</span> table.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-dark-border bg-dark-bg px-4 py-3 text-sm text-neutral-500">
-              Total Profiles: <span className="font-bold text-white">{users.length}</span>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="min-w-full border-separate border-spacing-y-2">
-              <thead>
-                <tr className="text-left text-xs uppercase tracking-[0.18em] text-neutral-500">
-                  <th className="px-4 py-3 font-bold">User</th>
-                  <th className="px-4 py-3 font-bold">Role</th>
-                  <th className="px-4 py-3 font-bold">Permissions</th>
+    const UsersTable = ({ users }) => (
+      <div className="rounded-[28px] border border-dark-border bg-dark-card p-6 shadow-soft">
+        <div className="mb-6"><h3 className="text-xl font-bold tracking-tight">Supabase User Directory</h3></div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full border-separate border-spacing-y-2">
+            <thead>
+              <tr className="text-left text-xs uppercase tracking-[0.18em] text-neutral-500">
+                <th className="px-4 py-3 font-bold">User</th>
+                <th className="px-4 py-3 font-bold">Role</th>
+                <th className="px-4 py-3 font-bold">Permissions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map(user => (
+                <tr key={user.id} className="bg-dark-bg hover:bg-dark-soft transition">
+                  <td className="rounded-l-2xl px-4 py-4 align-top">
+                    <div className="font-semibold text-white">{user.full_name || "No name"}</div>
+                    <div className="mt-1 text-xs text-neutral-500">{user.email || "Auth email hidden"}</div>
+                  </td>
+                  <td className="px-4 py-4 align-top">
+                    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] ${user.role === "Admin" ? "border-brand/25 bg-brand/10 text-brand" : "border-dark-border bg-dark-card text-neutral-300"}`}>{user.role}</span>
+                  </td>
+                  <td className="rounded-r-2xl px-4 py-4 align-top">
+                    <div className="flex flex-wrap gap-2">
+                      {user.permissions.map(permission => <span key={permission} className="inline-flex rounded-full border border-dark-border bg-dark-card px-3 py-1 text-xs text-neutral-300">{getSectionTitle(permission)}</span>)}
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {users.map(user => (
-                  <tr key={user.id} className="bg-dark-bg hover:bg-dark-soft transition">
-                    <td className="rounded-l-2xl px-4 py-4 align-top">
-                      <div className="flex items-center gap-3">
-                        <div className="h-11 w-11 rounded-2xl border border-dark-border bg-dark-card flex items-center justify-center text-sm font-bold text-white">
-                          {getInitials(user.full_name || user.email || "U")}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-white">{user.full_name || "No name"}</div>
-                          <div className="mt-1 text-xs text-neutral-500">{user.email || "Auth email hidden"}</div>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="px-4 py-4 align-top">
-                      <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] ${
-                        user.role === "Admin"
-                          ? "border-brand/25 bg-brand/10 text-brand"
-                          : "border-dark-border bg-dark-card text-neutral-300"
-                      }`}>
-                        {user.role}
-                      </span>
-                    </td>
-
-                    <td className="rounded-r-2xl px-4 py-4 align-top">
-                      <div className="flex flex-wrap gap-2">
-                        {user.permissions.map(permission => (
-                          <span
-                            key={permission}
-                            className="inline-flex rounded-full border border-dark-border bg-dark-card px-3 py-1 text-xs text-neutral-300"
-                          >
-                            {getSectionTitle(permission)}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
-      );
-    }
+      </div>
+    );
 
-    function ProfileEditor({ setNotice, refreshAll }) {
-      const defaultPermissions = SECTIONS.map(section => section.id);
-
-      const [form, setForm] = useState({
-        userId: "",
-        full_name: "",
-        role: "User",
-        can_manage_users: false,
-        permissions: defaultPermissions
-      });
+    const ProfileEditor = ({ setNotice, refreshAll }) => {
+      const defaultPermissions = SECTIONS.map(s => s.id);
+      const [form, setForm] = useState({ userId: "", full_name: "", role: "User", can_manage_users: false, permissions: defaultPermissions });
       const [saving, setSaving] = useState(false);
 
-      const togglePermission = (id) => {
-        setForm(prev => ({
-          ...prev,
-          permissions: prev.permissions.includes(id)
-            ? prev.permissions.filter(permission => permission !== id)
-            : [...prev.permissions, id]
-        }));
-      };
+      const togglePermission = (id) => setForm(prev => ({ ...prev, permissions: prev.permissions.includes(id) ? prev.permissions.filter(p => p !== id) : [...prev.permissions, id] }));
 
       const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (!form.userId.trim()) {
-          setNotice({ type: "error", text: "Please enter the Supabase auth user UUID." });
-          return;
-        }
-
+        if (!form.userId.trim()) { setNotice({ type: "error", text: "Please enter the Supabase auth user UUID." }); return; }
         setSaving(true);
         try {
           const payload = {
-            id: form.userId.trim(),
-            full_name: form.full_name.trim() || null,
-            role: form.role,
-            can_manage_users: !!form.can_manage_users,
-            quotation_received: form.permissions.includes("quotation_received"),
-            quotation_breakdown: form.permissions.includes("quotation_breakdown"),
-            inventory: form.permissions.includes("inventory"),
-            project_status: form.permissions.includes("project_status")
+            id: form.userId.trim(), full_name: form.full_name.trim() || null, role: form.role, can_manage_users: !!form.can_manage_users,
+            quotation_received: form.permissions.includes("quotation_received"), quotation_breakdown: form.permissions.includes("quotation_breakdown"),
+            inventory: form.permissions.includes("inventory"), project_status: form.permissions.includes("project_status")
           };
-
-          const { error } = await supabaseClient
-            .from("user_profiles")
-            .upsert(payload);
-
+          const { error } = await supabaseClient.from("user_profiles").upsert(payload);
           if (error) throw error;
-
           setNotice({ type: "success", text: "Profile saved successfully." });
-          setForm({
-            userId: "",
-            full_name: "",
-            role: "User",
-            can_manage_users: false,
-            permissions: defaultPermissions
-          });
+          setForm({ userId: "", full_name: "", role: "User", can_manage_users: false, permissions: defaultPermissions });
           await refreshAll();
-        } catch (err) {
-          setNotice({ type: "error", text: err.message || "Failed to save profile." });
-        } finally {
-          setSaving(false);
-        }
+        } catch (err) { setNotice({ type: "error", text: err.message }); } 
+        finally { setSaving(false); }
       };
 
       return (
         <div className="rounded-[28px] border border-dark-border bg-dark-card p-6 shadow-soft">
-          <div className="mb-6">
-            <h3 className="text-xl font-bold tracking-tight">Add or Update Profile</h3>
-            <p className="mt-2 text-sm text-neutral-500">
-              First create the auth user in Supabase Dashboard, then paste that user's UUID here.
-            </p>
-          </div>
-
+          <div className="mb-6"><h3 className="text-xl font-bold tracking-tight">Add / Update Profile</h3></div>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-neutral-300">Supabase Auth User UUID</label>
-              <input
-                type="text"
-                value={form.userId}
-                onChange={(e) => setForm({ ...form, userId: e.target.value })}
-                className="w-full rounded-2xl border border-dark-border bg-dark-bg px-4 py-3 text-white outline-none focus:border-brand"
-                placeholder="Paste auth.users UUID"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-neutral-300">Full Name</label>
-              <input
-                type="text"
-                value={form.full_name}
-                onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-                className="w-full rounded-2xl border border-dark-border bg-dark-bg px-4 py-3 text-white outline-none focus:border-brand"
-                placeholder="Enter full name"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-neutral-300">Role</label>
-              <select
-                value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="w-full rounded-2xl border border-dark-border bg-dark-bg px-4 py-3 text-white outline-none focus:border-brand"
-              >
-                <option>User</option>
-                <option>Admin</option>
-              </select>
-            </div>
-
+            <input type="text" value={form.userId} onChange={e => setForm({ ...form, userId: e.target.value })} className="w-full rounded-2xl border border-dark-border bg-dark-bg px-4 py-3 text-white outline-none focus:border-brand" placeholder="Paste auth.users UUID" />
+            <input type="text" value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })} className="w-full rounded-2xl border border-dark-border bg-dark-bg px-4 py-3 text-white outline-none focus:border-brand" placeholder="Enter full name" />
+            <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className="w-full rounded-2xl border border-dark-border bg-dark-bg px-4 py-3 text-white outline-none focus:border-brand">
+              <option>User</option><option>Admin</option>
+            </select>
             <label className="flex items-center gap-3 rounded-2xl border border-dark-border bg-dark-bg px-4 py-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={form.can_manage_users}
-                onChange={(e) => setForm({ ...form, can_manage_users: e.target.checked })}
-                className="h-4 w-4 accent-red-600"
-              />
+              <input type="checkbox" checked={form.can_manage_users} onChange={e => setForm({ ...form, can_manage_users: e.target.checked })} className="h-4 w-4 accent-red-600" />
               <span className="text-sm text-white">Can manage users and links</span>
             </label>
-
-            <div className="rounded-2xl border border-dark-border bg-dark-bg p-4">
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold text-white">Module Permissions</p>
-                  <p className="mt-1 text-xs text-neutral-500">Choose which modules this profile can access.</p>
-                </div>
-                <div className="rounded-full border border-dark-border bg-dark-card px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
-                  {form.permissions.length} Selected
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {SECTIONS.map(section => (
-                  <PermissionPill
-                    key={section.id}
-                    label={section.title}
-                    active={form.permissions.includes(section.id)}
-                    onToggle={() => togglePermission(section.id)}
-                  />
-                ))}
-              </div>
+            <div className="rounded-2xl border border-dark-border bg-dark-bg p-4 flex flex-wrap gap-2">
+              {SECTIONS.map(s => <PermissionPill key={s.id} label={s.title} active={form.permissions.includes(s.id)} onToggle={() => togglePermission(s.id)} />)}
             </div>
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full rounded-2xl bg-brand hover:bg-brand-hover disabled:opacity-60 px-4 py-3 font-bold text-white transition"
-            >
-              {saving ? "Saving..." : "Save Profile"}
-            </button>
+            <button type="submit" disabled={saving} className="w-full rounded-2xl bg-brand hover:bg-brand-hover disabled:opacity-60 px-4 py-3 font-bold text-white transition">{saving ? "Saving..." : "Save Profile"}</button>
           </form>
         </div>
       );
-    }
+    };
 
-    function LinksManager({ links, setNotice, refreshAll }) {
+    const LinksManager = ({ links, setNotice, refreshAll }) => {
       const [draftLinks, setDraftLinks] = useState(links);
       const [saving, setSaving] = useState(false);
-
-      useEffect(() => {
-        setDraftLinks(links);
-      }, [links]);
+      useEffect(() => { setDraftLinks(links); }, [links]);
 
       const handleSave = async () => {
         setSaving(true);
         try {
           const rows = Object.entries(draftLinks).map(([section_key, url]) => ({ section_key, url }));
-
-          const { error } = await supabaseClient
-            .from("portal_links")
-            .upsert(rows, { onConflict: "section_key" });
-
+          const { error } = await supabaseClient.from("portal_links").upsert(rows, { onConflict: "section_key" });
           if (error) throw error;
-
-          setNotice({ type: "success", text: "Directory links updated successfully." });
+          setNotice({ type: "success", text: "Links updated successfully." });
           await refreshAll();
-        } catch (err) {
-          setNotice({ type: "error", text: err.message || "Failed to update links." });
-        } finally {
-          setSaving(false);
-        }
+        } catch (err) { setNotice({ type: "error", text: err.message }); } 
+        finally { setSaving(false); }
       };
 
       return (
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="rounded-[28px] border border-dark-border bg-dark-card p-6 shadow-soft">
-            <div className="mb-6">
-              <h3 className="text-xl font-bold tracking-tight">Directory Links</h3>
-              <p className="mt-2 text-sm text-neutral-500">
-                Configure SharePoint or OneDrive links for each module.
-              </p>
-            </div>
-
+            <h3 className="text-xl font-bold tracking-tight mb-6">Database Links</h3>
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-              {SECTIONS.map(section => (
+              {SECTIONS.filter(s => s.id !== 'project_status').map(section => (
                 <div key={section.id} className="rounded-2xl border border-dark-border bg-dark-bg p-4">
-                  <div className="mb-3 flex items-center gap-3">
-                    <div className="h-11 w-11 rounded-2xl border border-dark-border bg-dark-card flex items-center justify-center text-brand">
-                      <i className={`fa-solid ${section.icon}`}></i>
-                    </div>
-                    <div>
-                      <div className="font-semibold text-white">{section.title}</div>
-                      <div className="text-xs text-neutral-500">{section.badge} Module</div>
-                    </div>
-                  </div>
-
-                  <input
-                    type="text"
-                    value={draftLinks[section.id] || ""}
-                    onChange={(e) => setDraftLinks({ ...draftLinks, [section.id]: e.target.value })}
-                    placeholder="Paste SharePoint or OneDrive URL"
-                    className="w-full rounded-2xl border border-dark-border bg-dark-card px-4 py-3 text-sm text-neutral-300 outline-none transition focus:border-brand"
-                  />
+                  <div className="font-semibold text-white mb-2">{section.title}</div>
+                  <input type="text" value={draftLinks[section.id] || ""} onChange={e => setDraftLinks({ ...draftLinks, [section.id]: e.target.value })} placeholder="URL" className="w-full rounded-2xl border border-dark-border bg-dark-card px-4 py-3 text-sm text-neutral-300 outline-none focus:border-brand" />
                 </div>
               ))}
             </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="rounded-2xl bg-brand hover:bg-brand-hover disabled:opacity-60 px-5 py-3 text-sm font-bold text-white transition"
-              >
-                {saving ? "Saving..." : "Save All Links"}
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-5">
-            <StatCard title="Configured Modules" value={SECTIONS.length} icon="fa-link" accent="brand" />
-            <StatCard title="Database Mode" value="Supabase" icon="fa-database" />
-            <div className="rounded-[28px] border border-dark-border bg-dark-card p-5 shadow-soft">
-              <h4 className="font-bold tracking-tight">Admin Note</h4>
-              <p className="mt-2 text-sm leading-6 text-neutral-500">
-                This page updates the shared <span className="font-semibold text-white">portal_links</span> table, so all users see the same links.
-              </p>
-            </div>
+            <button onClick={handleSave} disabled={saving} className="mt-6 rounded-2xl bg-brand hover:bg-brand-hover disabled:opacity-60 px-5 py-3 text-sm font-bold text-white transition">{saving ? "Saving..." : "Save Links"}</button>
           </div>
         </div>
       );
-    }
+    };
 
-    function AdminPanel({ users, links, refreshAll }) {
+    const AdminPanel = ({ users, links, refreshAll }) => {
       const [activeTab, setActiveTab] = useState("users");
       const [notice, setNotice] = useState(null);
 
-      const totalAdmins = users.filter(user => user.role === "Admin").length;
-
       return (
         <div className="space-y-8 fade-in">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-red-200">
-                <i className="fa-solid fa-shield-halved"></i>
-                Administrative Controls
-              </div>
-              <h2 className="mt-4 text-3xl md:text-4xl font-black tracking-tight">
-                System Administration
-              </h2>
-              <p className="mt-3 max-w-2xl text-neutral-500">
-                Manage profile permissions and shared directory links through Supabase.
-              </p>
-            </div>
-          </div>
-
+          <div><h2 className="text-3xl font-black tracking-tight">Supabase Administration</h2></div>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             <StatCard title="Total Profiles" value={users.length} icon="fa-users" accent="brand" />
-            <StatCard title="Admin Accounts" value={totalAdmins} icon="fa-user-shield" />
+            <StatCard title="Admin Accounts" value={users.filter(u => u.role === "Admin").length} icon="fa-user-shield" />
             <StatCard title="Managed Modules" value={SECTIONS.length} icon="fa-layer-group" />
           </div>
-
           <Notice notice={notice} />
-
-          <div className="rounded-[28px] border border-dark-border bg-dark-card p-3 shadow-soft">
-            <div className="inline-flex rounded-2xl border border-dark-border bg-dark-bg p-1 gap-1">
-              <button
-                onClick={() => setActiveTab("users")}
-                className={`rounded-2xl px-5 py-3 text-sm font-semibold transition ${
-                  activeTab === "users"
-                    ? "bg-brand text-white shadow-soft"
-                    : "text-neutral-500 hover:text-white"
-                }`}
-              >
-                <i className="fa-solid fa-users-gear mr-2"></i>
-                Manage Profiles
-              </button>
-
-              <button
-                onClick={() => setActiveTab("links")}
-                className={`rounded-2xl px-5 py-3 text-sm font-semibold transition ${
-                  activeTab === "links"
-                    ? "bg-brand text-white shadow-soft"
-                    : "text-neutral-500 hover:text-white"
-                }`}
-              >
-                <i className="fa-solid fa-link mr-2"></i>
-                Manage Links
-              </button>
-            </div>
+          <div className="rounded-[28px] border border-dark-border bg-dark-card p-3 shadow-soft inline-flex gap-1">
+            <button onClick={() => setActiveTab("users")} className={`rounded-2xl px-5 py-3 text-sm font-semibold transition ${activeTab === "users" ? "bg-brand text-white shadow-soft" : "text-neutral-500 hover:text-white"}`}>Manage Profiles</button>
+            <button onClick={() => setActiveTab("links")} className={`rounded-2xl px-5 py-3 text-sm font-semibold transition ${activeTab === "links" ? "bg-brand text-white shadow-soft" : "text-neutral-500 hover:text-white"}`}>Manage Links</button>
           </div>
-
           {activeTab === "users" ? (
             <div className="grid grid-cols-1 gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
               <ProfileEditor setNotice={setNotice} refreshAll={refreshAll} />
               <UsersTable users={users} />
             </div>
-          ) : (
-            <LinksManager links={links} setNotice={setNotice} refreshAll={refreshAll} />
-          )}
+          ) : <LinksManager links={links} setNotice={setNotice} refreshAll={refreshAll} />}
         </div>
       );
-    }
+    };
 
-    function App() {
+    // --- MAIN APP COMPONENT ---
+    const App = () => {
       const [loading, setLoading] = useState(true);
       const [authError, setAuthError] = useState("");
       const [sessionUser, setSessionUser] = useState(null);
@@ -1091,44 +413,24 @@
 
       const currentUser = useMemo(() => {
         if (!sessionUser || !profile) return null;
-
         return {
-          id: sessionUser.id,
-          email: sessionUser.email,
-          full_name: profile.full_name,
-          role: profile.role || "User",
-          can_manage_users: !!profile.can_manage_users,
-          permissions: profileToPermissions(profile)
+          id: sessionUser.id, email: sessionUser.email, full_name: profile.full_name, role: profile.role || "User",
+          can_manage_users: !!profile.can_manage_users, permissions: profileToPermissions(profile)
         };
       }, [sessionUser, profile]);
 
       const loadPortalData = async (authUser) => {
-        const { data: profileRow, error: profileError } = await supabaseClient
-          .from("user_profiles")
-          .select("*")
-          .eq("id", authUser.id)
-          .single();
-
+        const { data: profileRow, error: profileError } = await supabaseClient.from("user_profiles").select("*").eq("id", authUser.id).single();
         if (profileError) throw profileError;
-
         setProfile(profileRow);
 
-        const { data: linkRows, error: linksError } = await supabaseClient
-          .from("portal_links")
-          .select("section_key, url");
-
+        const { data: linkRows, error: linksError } = await supabaseClient.from("portal_links").select("section_key, url");
         if (linksError) throw linksError;
-
         setLinks(normalizeLinks(linkRows));
 
         if (profileRow.can_manage_users) {
-          const { data: profileRows, error: profilesError } = await supabaseClient
-            .from("user_profiles")
-            .select("*")
-            .order("created_at", { ascending: true });
-
-          if (profilesError) throw profilesError;
-          setProfiles(profileRows || []);
+          const { data: profileRows } = await supabaseClient.from("user_profiles").select("*").order("created_at", { ascending: true });
+          setProfiles((profileRows || []).map(row => ({ ...row, permissions: profileToPermissions(row) })));
         } else {
           setProfiles([]);
         }
@@ -1136,100 +438,55 @@
 
       const refreshAll = async () => {
         const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) return;
-        await loadPortalData(user);
+        if (user) await loadPortalData(user);
       };
 
       useEffect(() => {
         let mounted = true;
-
         const bootstrap = async () => {
           try {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!mounted) return;
-
-            if (session?.user) {
-              setSessionUser(session.user);
-              await loadPortalData(session.user);
-            }
-          } catch (err) {
-            if (mounted) setAuthError(err.message || "Failed to load session.");
-          } finally {
-            if (mounted) setLoading(false);
-          }
+            if (session?.user) { setSessionUser(session.user); await loadPortalData(session.user); }
+          } catch (err) { if (mounted) setAuthError(err.message); } 
+          finally { if (mounted) setLoading(false); }
         };
-
         bootstrap();
 
         const { data: authListener } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
           if (!mounted) return;
-
           if (session?.user) {
             setSessionUser(session.user);
-            try {
-              await loadPortalData(session.user);
-            } catch (err) {
-              setAuthError(err.message || "Failed to load profile.");
-            }
+            try { await loadPortalData(session.user); } catch (err) { setAuthError(err.message); }
           } else {
-            setSessionUser(null);
-            setProfile(null);
-            setProfiles([]);
-            setLinks(DEFAULT_LINKS);
+            setSessionUser(null); setProfile(null); setProfiles([]); setLinks(DEFAULT_LINKS);
           }
         });
-
-        return () => {
-          mounted = false;
-          authListener.subscription.unsubscribe();
-        };
+        return () => { mounted = false; authListener.subscription.unsubscribe(); };
       }, []);
 
       const handleLogin = async (email, password) => {
         setAuthError("");
-        const { error } = await supabaseClient.auth.signInWithPassword({
-          email,
-          password
-        });
-
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
       };
 
       const handleLogout = async () => {
         await supabaseClient.auth.signOut();
-        setView("dashboard");
-        setAuthError("");
+        setView("dashboard"); setAuthError("");
       };
 
-      if (loading) {
-        return <LoadingScreen />;
-      }
-
-      if (!currentUser) {
-        return <Login onLogin={handleLogin} error={authError} />;
-      }
+      if (loading) return <LoadingScreen />;
+      if (!currentUser) return <Login onLogin={handleLogin} error={authError} />;
 
       return (
-        <div className="min-h-screen bg-dark-bg text-white fade-in">
-          <TopNav
-            currentUser={currentUser}
-            view={view}
-            setView={setView}
-            onLogout={handleLogout}
-          />
-
-          <main className="mx-auto w-full max-w-[1600px] px-4 py-8 md:px-8 md:py-10">
-            {view === "dashboard" ? (
-              <Dashboard user={currentUser} links={links} />
-            ) : currentUser.can_manage_users ? (
-              <AdminPanel
-                users={profiles}
-                links={links}
-                refreshAll={refreshAll}
-              />
-            ) : (
-              <Dashboard user={currentUser} links={links} />
-            )}
+        <div className="min-h-screen">
+          <TopNav currentUser={currentUser} setView={setView} onLogout={handleLogout} />
+          <main className="max-w-[1600px] mx-auto px-8 py-8">
+            {view === "dashboard" ? <Dashboard user={currentUser} links={links} onOpenProjects={() => setView("projects")} /> 
+            : view === "projects" ? <ProjectView onBack={() => setView("dashboard")} />
+            : currentUser.can_manage_users ? <AdminPanel users={profiles} links={links} refreshAll={refreshAll} /> 
+            : <Dashboard user={currentUser} links={links} onOpenProjects={() => setView("projects")} />}
           </main>
         </div>
       );
