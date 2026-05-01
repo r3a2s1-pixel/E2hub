@@ -130,15 +130,61 @@ function createElement(tag, props = {}) {
 // ============================================================
 function switchView(viewName) {
   Object.entries(DOM.views).forEach(([name, el]) => {
-    el.classList.toggle("active", name === viewName);
+    if (!el) return;
+
+    const isActive = name === viewName;
+    el.classList.toggle("active", isActive);
+
+    if (isActive) {
+      el.style.display = name === "app" ? "block" : "flex";
+      el.style.opacity = "1";
+      el.style.visibility = "visible";
+    } else {
+      el.style.display = "none";
+      el.style.opacity = "0";
+      el.style.visibility = "hidden";
+    }
   });
 }
 
 function switchSection(sectionName) {
   Object.entries(DOM.sections).forEach(([name, el]) => {
-    el.classList.toggle("active", name === sectionName);
+    if (!el) return;
+
+    const isActive = name === sectionName;
+    el.classList.toggle("active", isActive);
+
+    if (isActive) {
+      el.style.display = "block";
+      el.style.opacity = "1";
+      el.style.visibility = "visible";
+    } else {
+      el.style.display = "none";
+    }
   });
-  // Scroll to top of content on section change
+
+  const appView = document.getElementById("app-view");
+  const nav = document.querySelector(".top-nav");
+  const main = document.querySelector("main");
+
+  if (appView && appView.classList.contains("active")) {
+    appView.style.display = "block";
+    appView.style.opacity = "1";
+    appView.style.visibility = "visible";
+  }
+
+  if (nav) {
+    nav.style.display = "block";
+    nav.style.opacity = "1";
+    nav.style.visibility = "visible";
+  }
+
+  if (main) {
+    main.style.display = "block";
+    main.style.opacity = "1";
+    main.style.visibility = "visible";
+  }
+
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
