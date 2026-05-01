@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E2hub | Enterprise Portal</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- Ambient Background -->
+  <div class="ambient-glow glow-top" aria-hidden="true"></div>
+  <div class="ambient-glow glow-bottom" aria-hidden="true"></div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       VIEW: LOADING
+  ════════════════════════════════════════════════════════════ -->
+  <div id="loading-view" class="view active min-h-screen flex-center relative z-10" role="status" aria-label="Loading application">
+    <div class="card glass-panel text-center p-xl shadow-premium max-w-sm w-full" style="margin: 0 16px;">
+      <div class="logo-box mx-auto mb-lg pulse-anim" aria-hidden="true">E2</div>
+      <div class="font-black text-xl mb-xs">Authenticating</div>
+      <div class="text-sm text-muted flex-center gap-sm" style="justify-content:center;">
+        <i class="fa-solid fa-circle-notch fa-spin text-brand" aria-hidden="true"></i>
+        Securing connection&hellip;
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       VIEW: LOGIN
+  ════════════════════════════════════════════════════════════ -->
+  <div id="login-view" class="view min-h-screen flex-center relative z-10" style="padding: 16px;">
+    <div class="card glass-panel shadow-premium max-w-sm w-full" style="padding: 40px 32px;">
+
+      <div class="text-center mb-xl">
+        <div class="logo-box mx-auto mb-lg shadow-brand-glow" aria-hidden="true">E2</div>
+        <h1 class="font-black tracking-tight mb-xs" style="font-size:26px;">E2hub Portal</h1>
+        <p class="text-sm text-muted">Secure enterprise workspace</p>
+      </div>
+
+      <form id="login-form" novalidate>
+        <div class="input-group mb-md">
+          <i class="fa-solid fa-envelope input-icon" aria-hidden="true"></i>
+          <input
+            type="email"
+            id="login-email"
+            placeholder="Corporate Email"
+            required
+            autocomplete="email"
+            class="input-field pl-xl"
+            aria-label="Corporate email address"
+          />
+        </div>
+        <div class="input-group mb-lg">
+          <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
+          <input
+            type="password"
+            id="login-password"
+            placeholder="Password"
+            required
+            autocomplete="current-password"
+            class="input-field pl-xl"
+            aria-label="Password"
+          />
+        </div>
+        <div id="login-error" class="hidden mb-md" style="
+          background: var(--error-bg);
+          border: 1px solid rgba(239,68,68,0.25);
+          border-radius: var(--radius-md);
+          padding: 10px 14px;
+          font-size: 13px;
+          color: var(--error);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        " role="alert"></div>
+        <button type="submit" id="login-btn" class="btn btn-primary w-full shadow-brand-glow uppercase tracking-widest text-xs">
+          Secure Login
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       VIEW: APPLICATION
+  ════════════════════════════════════════════════════════════ -->
+  <div id="app-view" class="view min-h-screen relative z-10">
+
+    <!-- Navigation -->
+    <nav class="top-nav glass-panel border-b-subtle" role="navigation" aria-label="Main navigation">
+      <div class="nav-container max-w-container mx-auto px-md py-sm">
+
+        <div class="flex-align gap-md cursor-pointer group" id="nav-logo-btn" role="button" tabindex="0" aria-label="Go to dashboard">
+          <div class="logo-box-small shadow-brand-glow" aria-hidden="true">E2</div>
+          <div class="hidden-sm">
+            <div class="font-black text-lg leading-none" style="letter-spacing:-0.02em;">E2HUB</div>
+            <div class="text-xxs text-muted tracking-widest uppercase" style="margin-top:3px;">Workspace</div>
+          </div>
+        </div>
+
+        <div class="flex-align gap-md">
+          <button id="nav-admin-btn" class="btn btn-outline btn-sm hidden flex-align gap-sm" aria-label="Open admin panel">
+            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+            <span class="hidden-sm">Admin</span>
+          </button>
+          <div class="h-divider hidden-sm" aria-hidden="true"></div>
+          <button id="nav-logout-btn" class="btn btn-icon" title="Sign Out" aria-label="Sign out">
+            <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-container mx-auto" style="padding: 32px 16px 64px;">
+
+      <!-- ─── Dashboard Section ──────────────────────────── -->
+      <section id="dashboard-section" class="section active fade-in" aria-label="Dashboard overview">
+        <div class="mb-xl max-w-2xl">
+          <h2 class="font-black tracking-tight mb-sm" style="font-size: clamp(28px, 5vw, 44px);">Overview</h2>
+          <p class="text-muted" style="font-size:15px;">Access your assigned operational modules and active project resources.</p>
+        </div>
+        <div class="grid grid-cols-1 md-grid-cols-2 lg-grid-cols-4 gap-lg" id="dashboard-grid">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- ─── Projects Section ──────────────────────────── -->
+      <section id="projects-section" class="section fade-in" aria-label="Project workspaces">
+        <button class="btn btn-text mb-lg group" id="back-to-dashboard-btn" aria-label="Back to overview">
+          <i class="fa-solid fa-arrow-left mr-sm group-hover:-translate-x-1 transition-transform" aria-hidden="true"></i>
+          Back to Overview
+        </button>
+        <div class="mb-xl">
+          <h2 class="font-black tracking-tight mb-xs" style="font-size: clamp(24px, 4vw, 36px);">Project Workspaces</h2>
+          <p class="text-muted">Monitor active sites, infrastructure deployments, and documentation.</p>
+        </div>
+        <div class="grid grid-cols-1 md-grid-cols-2 lg-grid-cols-3 gap-lg" id="projects-grid">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- ─── Admin Section ─────────────────────────────── -->
+      <section id="admin-section" class="section fade-in" aria-label="Administration panel">
+
+        <div class="mb-xl">
+          <div class="badge-admin inline-flex mb-md">
+            <i class="fa-solid fa-shield-halved mr-sm" aria-hidden="true"></i> Administration
+          </div>
+          <h2 class="font-black tracking-tight" style="font-size: clamp(24px, 4vw, 36px);">System Controls</h2>
+          <p class="text-muted mt-xs">Manage user provisioning, roles, and routing endpoints.</p>
+        </div>
+
+        <!-- Stat Cards -->
+        <div class="grid grid-cols-1 md-grid-cols-3 gap-lg mb-xl">
+          <div class="stat-card">
+            <div>
+              <p class="text-xxs uppercase tracking-widest text-muted font-bold mb-xs">Total Profiles</p>
+              <p class="font-black" style="font-size:40px;line-height:1;" id="stat-total-users">0</p>
+            </div>
+            <div class="icon-box brand"><i class="fa-solid fa-users" aria-hidden="true"></i></div>
+          </div>
+          <div class="stat-card">
+            <div>
+              <p class="text-xxs uppercase tracking-widest text-muted font-bold mb-xs">Administrators</p>
+              <p class="font-black" style="font-size:40px;line-height:1;" id="stat-admin-users">0</p>
+            </div>
+            <div class="icon-box"><i class="fa-solid fa-user-shield text-muted" aria-hidden="true"></i></div>
+          </div>
+          <div class="stat-card">
+            <div>
+              <p class="text-xxs uppercase tracking-widest text-muted font-bold mb-xs">Active Modules</p>
+              <p class="font-black" style="font-size:40px;line-height:1;" id="stat-modules">4</p>
+            </div>
+            <div class="icon-box"><i class="fa-solid fa-layer-group text-muted" aria-hidden="true"></i></div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="border-b-subtle mb-xl flex-align gap-lg" role="tablist" aria-label="Admin sections">
+          <button class="tab-btn active" data-target="admin-users-tab" role="tab" aria-selected="true" aria-controls="admin-users-tab">User Profiles</button>
+          <button class="tab-btn" data-target="admin-links-tab" role="tab" aria-selected="false" aria-controls="admin-links-tab">Routing Endpoints</button>
+        </div>
+
+        <!-- Tab: User Profiles -->
+        <div id="admin-users-tab" class="admin-tab active" role="tabpanel">
+          <div class="grid grid-cols-1 gap-xl" id="admin-users-grid">
+            <div class="admin-users-layout">
+
+              <!-- User Form -->
+              <div class="card glass-panel flex flex-col overflow-hidden border-t-highlight">
+                <div class="bg-dark p-md border-b-subtle flex-between">
+                  <div>
+                    <h3 class="font-bold" style="font-size:15px;">Profile Configuration</h3>
+                    <p class="text-xs text-muted mt-xs" id="form-mode-label">Creating new profile</p>
+                  </div>
+                  <button type="button" id="form-clear-btn" class="btn btn-text btn-sm hidden" aria-label="Clear form">
+                    <i class="fa-solid fa-xmark mr-xs" aria-hidden="true"></i> Clear
+                  </button>
+                </div>
+                <form id="admin-user-form" class="p-lg flex flex-col gap-md flex-1" novalidate>
+                  <div>
+                    <label class="form-label" for="form-uid">Supabase Auth UUID</label>
+                    <input type="text" id="form-uid" placeholder="e.g. 550e8400-e29b-41d4-a716-446655440000" required class="input-field font-mono text-xs" autocomplete="off" />
+                  </div>
+                  <div class="grid grid-cols-2 gap-md">
+                    <div>
+                      <label class="form-label" for="form-name">Display Name</label>
+                      <input type="text" id="form-name" placeholder="Full Name" class="input-field" autocomplete="off" />
+                    </div>
+                    <div>
+                      <label class="form-label" for="form-role">System Role</label>
+                      <select id="form-role" class="input-field appearance-none">
+                        <option value="User">Standard User</option>
+                        <option value="Admin">Administrator</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <label class="flex-align gap-md p-md bg-dark border-subtle rounded-xl cursor-pointer hover-border" style="margin-top:4px;">
+                    <input type="checkbox" id="form-manage-users" class="checkbox-custom" />
+                    <div>
+                      <div class="text-sm font-bold">Superuser Privileges</div>
+                      <div class="text-xxs text-muted mt-1">Grant access to this administration panel.</div>
+                    </div>
+                  </label>
+
+                  <div style="margin-top:4px;">
+                    <label class="form-label">Module Assignments</label>
+                    <div class="bg-dark border-subtle p-md rounded-xl" style="display:flex;flex-wrap:wrap;gap:8px;" id="form-permissions-container" role="group" aria-label="Module access permissions">
+                      <!-- Rendered by JS -->
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn btn-secondary w-full" id="save-profile-btn" style="margin-top:auto;">
+                    <i class="fa-solid fa-floppy-disk mr-sm" aria-hidden="true"></i>
+                    Commit Changes
+                  </button>
+                </form>
+              </div>
+
+              <!-- Users Table -->
+              <div class="card glass-panel flex flex-col overflow-hidden border-t-highlight">
+                <div class="bg-dark p-md border-b-subtle directory-header">
+                  <div>
+                    <h3 class="font-bold" style="font-size:15px;">Directory Access</h3>
+                    <p class="text-xs text-muted mt-xs">Search and edit existing user profiles.</p>
+                  </div>
+                  <div class="directory-tools">
+                    <div class="search-field">
+                      <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+                      <input type="search" id="admin-user-search" class="input-field search-input" placeholder="Search name, UUID, or role" autocomplete="off" aria-label="Search user profiles" />
+                    </div>
+                    <span class="text-xxs text-muted uppercase tracking-widest whitespace-nowrap">
+                      <span id="user-count-label">0</span> profiles
+                    </span>
+                  </div>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="admin-table w-full text-left" aria-label="User profiles directory">
+                    <thead>
+                      <tr>
+                        <th>User Identity</th>
+                        <th>Role</th>
+                        <th>Module Access</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                      <!-- Rendered by JS -->
+                    </tbody>
+                  </table>
+                  <div id="users-empty-state" class="empty-state hidden">
+                    <div class="empty-state-icon"><i class="fa-solid fa-users-slash" aria-hidden="true"></i></div>
+                    <div class="empty-state-title">No profiles found</div>
+                    <div class="empty-state-desc">Create the first profile or adjust your search.</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Routing Endpoints -->
+        <div id="admin-links-tab" class="admin-tab max-w-4xl" role="tabpanel">
+          <div class="card glass-panel overflow-hidden border-t-highlight">
+            <div class="bg-dark p-md border-b-subtle">
+              <h3 class="font-bold" style="font-size:15px;">Endpoint Configuration</h3>
+              <p class="text-xs text-muted mt-xs">Manage underlying SharePoint routing for modules.</p>
+            </div>
+            <form id="admin-links-form" class="p-lg">
+              <div class="grid grid-cols-1 lg-grid-cols-2 gap-lg" id="links-input-container">
+                <!-- Rendered by JS -->
+              </div>
+              <div style="margin-top:32px;padding-top:20px;border-top:1px solid var(--border-subtle);">
+                <button type="submit" class="btn btn-primary shadow-brand-glow uppercase tracking-widest text-xs" id="save-links-btn">
+                  <i class="fa-solid fa-paper-plane mr-sm" aria-hidden="true"></i>
+                  Deploy Link Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <script src="portal-app.js"></script>
+</body>
+</html>
