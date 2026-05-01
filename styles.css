@@ -1,5 +1,6 @@
 /* ============================================================
    GITHUB PAGES APP VISIBILITY FIX
+   Ensures the authenticated app view and active section render
    ============================================================ */
 
 #app-view.active {
@@ -22,7 +23,6 @@
   opacity: 1 !important;
   visibility: visible !important;
   color: var(--text-primary, #f0f4ff) !important;
-  min-height: calc(100vh - 64px) !important;
 }
 
 #app-view.active .section.active {
